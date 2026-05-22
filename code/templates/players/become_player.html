@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Become a Player — PlayerHire{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;margin:0 auto;">
+  <div class="page-header">
+    <h1>Become a Player</h1>
+    <p>Turn your gaming skills into income.</p>
+  </div>
+
+  <div class="card">
+    <form method="POST">
+      <div class="form-group">
+        <label for="bio">Bio</label>
+        <textarea id="bio" name="bio" placeholder="Tell clients about yourself, your experience, and what games you specialize in..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="fee_per_hour">Fee per Hour (₽)</label>
+        <input type="number" id="fee_per_hour" name="fee_per_hour" step="0.5" min="0" value="10" required />
+      </div>
+
+      <div class="form-group">
+        <label for="skill_level">Overall Skill Level</label>
+        <select id="skill_level" name="skill_level">
+          <option value="beginner">Beginner</option>
+          <option value="intermediate" selected>Intermediate</option>
+          <option value="advanced">Advanced</option>
+          <option value="pro">Pro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Games You Offer *</label>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;max-height:200px;overflow-y:auto;">
+          {% for game in games %}
+            <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;">
+              <input type="checkbox" name="game_ids" value="{{ game.id }}" />
+              {{ game.title }}
+            </label>
+          {% endfor %}
+        </div>
+        {% if not games %}
+          <p style="color:var(--muted);font-size:0.85rem;">No games in catalogue yet. <a href="{{ url_for('games.new_game') }}" style="color:var(--accent);">Add one</a>.</p>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary" {% if not games %}disabled{% endif %}>Create Player Profile</button>
+      <a href="{{ url_for('users.dashboard') }}" class="btn btn-outline">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Write a Review — PlayerHire{% endblock %}
+
+{% block content %}
+<div style="max-width:480px;margin:0 auto;">
+  <div class="page-header">
+    <h1>Write a Review</h1>
+    <p>Rate your session with <strong>{{ booking.player.user.username }}</strong> in {{ booking.game.title }}.</p>
+  </div>
+
+  <div class="card">
+    <form method="POST" action="{{ url_for('reviews.new_review', booking_id=booking.id) }}">
+
+      <!-- Star rating picker -->
+      <div class="form-group">
+        <label>Rating</label>
+        <div style="display:flex;gap:0.5rem;margin-top:0.25rem;" id="stars">
+          {% for i in range(1, 6) %}
+            <label style="cursor:pointer;font-size:1.8rem;color:var(--border);transition:color 0.15s;" data-value="{{ i }}">
+              ★
+              <input type="radio" name="rating" value="{{ i }}" required style="display:none;" />
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="comment">Comment <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+        <textarea id="comment" name="comment" placeholder="How was the session?"></textarea>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;">
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+        <a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const stars = document.querySelectorAll('#stars label');
+  stars.forEach((star, idx) => {
+    star.addEventListener('click', () => {
+      star.querySelector('input').checked = true;
+      stars.forEach((s, i) => {
+        s.style.color = i <= idx ? 'var(--warning)' : 'var(--border)';
+      });
+    });
+    star.addEventListener('mouseenter', () => {
+      stars.forEach((s, i) => {
+        s.style.color = i <= idx ? 'var(--warning)' : 'var(--border)';
+      });
+    });
+  });
+
+  document.getElementById('stars').addEventListener('mouseleave', () => {
+    const checked = document.querySelector('#stars input:checked');
+    const checkedIdx = checked ? parseInt(checked.value) - 1 : -1;
+    stars.forEach((s, i) => {
+      s.style.color = i <= checkedIdx ? 'var(--warning)' : 'var(--border)';
+    });
+  });
+</script>
+{% endblock %}

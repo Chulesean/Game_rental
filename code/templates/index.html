@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}PlayerHire — Find Your Gaming Partner{% endblock %}
+
+{% block extra_head %}
+<style>
+  .hero {
+    text-align: center;
+    padding: 5rem 1rem 4rem;
+    position: relative;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(124,109,250,0.15), transparent);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid var(--accent);
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 1.15rem;
+    max-width: 520px;
+    margin: 1.2rem auto 2.5rem;
+    line-height: 1.65;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.5s 0.3s ease both;
+  }
+
+  .hero-actions .btn { padding: 0.75rem 1.8rem; font-size: 1rem; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    padding: 2.5rem 1rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat { text-align: center; }
+  .stat-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .stat-label { font-size: 0.82rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* How it works */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.4rem;
+  }
+
+  .section-sub { color: var(--muted); margin-bottom: 2rem; }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 4rem;
+  }
+
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 0.75rem;
+  }
+
+  .step h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .step p  { font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
+
+  /* CTA banner */
+  .cta-banner {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 0 40px var(--accent-glow);
+    margin-bottom: 2rem;
+  }
+
+  .cta-banner h2 { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 0.75rem; }
+  .cta-banner p  { color: var(--muted); margin-bottom: 1.5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <span class="hero-tag">🎮 Gaming companions on demand</span>
+  <h1>Play better.<br>Play with <em>pros</em>.</h1>
+  <p>Hire skilled players to game with you — ranked matches, casual sessions, coaching and more.</p>
+  <div class="hero-actions">
+    <a href="{{ url_for('users.search') }}" class="btn btn-primary">Browse Players</a>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-number">500+</div>
+    <div class="stat-label">Active Players</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">80+</div>
+    <div class="stat-label">Games Available</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">4.9★</div>
+    <div class="stat-label">Average Rating</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">₽500/hr</div>
+    <div class="stat-label">Starting From</div>
+  </div>
+</div>
+
+<div class="section-title">How it works</div>
+<p class="section-sub">Three steps to your next great gaming session.</p>
+
+<div class="steps">
+  <div class="step">
+    <div class="step-num">01</div>
+    <h3>Pick a game</h3>
+    <p>Browse our catalogue and find the game you want to play.</p>
+  </div>
+  <div class="step">
+    <div class="step-num">02</div>
+    <h3>Choose a player</h3>
+    <p>Filter by skill level, fee, and availability. Read reviews from other clients.</p>
+  </div>
+  <div class="step">
+    <div class="step-num">03</div>
+    <h3>Book a session</h3>
+    <p>Pick a time slot, confirm the booking, and jump into the game.</p>
+  </div>
+  <div class="step">
+    <div class="step-num">04</div>
+    <h3>Leave a review</h3>
+    <p>Rate your experience and help the community grow.</p>
+  </div>
+</div>
+
+<div class="cta-banner">
+  <h2>Are you a skilled player?</h2>
+  <p>Turn your gaming hours into income. Set your own rate and schedule.</p>
+  {% if current_user.is_authenticated %}
+    <a href="{{ url_for('players.become_player') }}" class="btn btn-primary">Create Player Profile</a>
+  {% else %}
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Join as a Player</a>
+  {% endif %}
+</div>
+{% endblock %}

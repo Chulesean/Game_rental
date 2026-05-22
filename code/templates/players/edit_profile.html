@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Edit Player Profile — PlayerHire{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;margin:0 auto;">
+  <a href="{{ url_for('players.player_detail', player_id=player.id) }}" style="color:var(--muted);font-size:0.88rem;text-decoration:none;display:inline-block;margin-bottom:1.5rem;">← Back to profile</a>
+
+  <div class="page-header">
+    <h1>Edit Player Profile</h1>
+    <p>Update your availability, rates, and games.</p>
+  </div>
+
+  <div class="card">
+    <form method="POST">
+      <div class="form-group">
+        <label for="bio">Bio</label>
+        <textarea id="bio" name="bio" placeholder="Tell clients about yourself...">{{ player.bio or '' }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="fee_per_hour">Fee per Hour (₽)</label>
+        <input type="number" id="fee_per_hour" name="fee_per_hour" step="0.5" min="0" value="{{ player.fee_per_hour }}" required />
+      </div>
+
+      <div class="form-group">
+        <label for="skill_level">Overall Skill Level</label>
+        <select id="skill_level" name="skill_level">
+          <option value="beginner" {% if player.skill_level == 'beginner' %}selected{% endif %}>Beginner</option>
+          <option value="intermediate" {% if player.skill_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+          <option value="advanced" {% if player.skill_level == 'advanced' %}selected{% endif %}>Advanced</option>
+          <option value="pro" {% if player.skill_level == 'pro' %}selected{% endif %}>Pro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+          <input type="checkbox" name="is_available" {% if player.is_available %}checked{% endif %} />
+          I am currently available for bookings
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>Games You Offer</label>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;max-height:200px;overflow-y:auto;">
+          {% for game in games %}
+            {% set has_game = player.games | selectattr('game_id', 'equalto', game.id) | list %}
+            <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;">
+              <input type="checkbox" name="game_ids" value="{{ game.id }}" {% if has_game %}checked{% endif %} />
+              {{ game.title }}
+            </label>
+          {% endfor %}
+        </div>
+        <p style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem;">
+          <a href="{{ url_for('games.new_game') }}" style="color:var(--accent);">+ Add a new game</a> to the catalogue.
+        </p>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+      <a href="{{ url_for('players.player_detail', player_id=player.id) }}" class="btn btn-outline">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Book {{ player.user.username }} — PlayerHire{% endblock %}
+
+{% block content %}
+<div style="max-width:520px;margin:0 auto;">
+  <a href="{{ url_for('players.player_detail', player_id=player.id) }}" style="color:var(--muted);font-size:0.88rem;text-decoration:none;display:inline-block;margin-bottom:1.5rem;">← Back to player</a>
+
+  <div class="page-header">
+    <h1>Book {{ player.user.username }}</h1>
+    <p>₽{{ "%.2f"|format(player.fee_per_hour) }}/hr · {{ player.skill_level|capitalize }}</p>
+  </div>
+
+  <div class="card">
+    <form method="POST" action="{{ url_for('bookings.create') }}">
+      <input type="hidden" name="player_id" value="{{ player.id }}" />
+
+      <div class="form-group">
+        <label for="game_id">Game</label>
+        <select id="game_id" name="game_id" required>
+          <option value="">Select a game…</option>
+          {% for pg in player.games %}
+            <option value="{{ pg.game_id }}">{{ pg.game.title }} ({{ pg.skill_level }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="start_time">Start Time</label>
+        <input type="datetime-local" id="start_time" name="start_time" required />
+      </div>
+
+      <div class="form-group">
+        <label for="end_time">End Time</label>
+        <input type="datetime-local" id="end_time" name="end_time" required />
+      </div>
+
+      <!-- Live fee preview -->
+      <div id="fee-preview" style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1.25rem;font-size:0.9rem;color:var(--muted);display:none;">
+        Estimated fee: <strong id="fee-amount" style="color:var(--accent);"></strong>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Confirm Booking</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const feePerHour = {{ player.fee_per_hour | tojson }};
+  const startInput = document.getElementById('start_time');
+  const endInput   = document.getElementById('end_time');
+  const preview    = document.getElementById('fee-preview');
+  const feeAmount  = document.getElementById('fee-amount');
+
+  function updateFee() {
+    const start = new Date(startInput.value);
+    const end   = new Date(endInput.value);
+    if (start && end && end > start) {
+      const hours = (end - start) / 3600000;
+      const fee = (hours * feePerHour).toFixed(2);
+      feeAmount.textContent = `₽${fee}`;
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+    }
+  }
+
+  startInput.addEventListener('change', updateFee);
+  endInput.addEventListener('change', updateFee);
+</script>
+{% endblock %}

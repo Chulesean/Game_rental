@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}My Bookings — PlayerHire{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>My Bookings</h1>
+  <p>All your past and upcoming sessions.</p>
+</div>
+
+{% if bookings %}
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table>
+      <thead>
+        <tr>
+          <th>Game</th>
+          <th>Player</th>
+          <th>Date</th>
+          <th>Duration</th>
+          <th>Fee</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bookings %}
+        <tr>
+          <td>
+            <a href="{{ url_for('games.game_detail', game_id=b.game_id) }}" style="color:var(--text);text-decoration:none;font-weight:500;">{{ b.game.title }}</a>
+          </td>
+          <td>
+            <a href="{{ url_for('players.player_detail', player_id=b.player_id) }}" style="color:var(--accent);text-decoration:none;">{{ b.player.user.username }}</a>
+          </td>
+          <td style="color:var(--muted);font-size:0.88rem;">{{ b.start_time.strftime('%b %d, %Y %H:%M') }}</td>
+          <td style="color:var(--muted);font-size:0.88rem;">
+            {% set hours = ((b.end_time - b.start_time).total_seconds() / 3600)|round(1) %}
+            {{ hours }}h
+          </td>
+          <td style="font-weight:500;">₽{{ "%.2f"|format(b.total_fee) }}</td>
+          <td>
+            {% if b.status == 'accepted' %}
+              <span class="badge badge-green">✅ Accepted</span>
+            {% elif b.status == 'pending' %}
+              <span class="badge badge-yellow">⏳ Pending</span>
+            {% elif b.status == 'denied' %}
+              <span class="badge badge-red">❌ Denied</span>
+            {% elif b.status == 'completed' %}
+              <span class="badge badge-purple">Completed</span>
+            {% else %}
+              <span class="badge badge-red">Cancelled</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if b.status in ('pending', 'confirmed') %}
+              <form method="POST" action="{{ url_for('bookings.cancel', booking_id=b.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-outline" style="font-size:0.78rem;padding:0.25rem 0.6rem;color:var(--danger);border-color:var(--danger);"
+                  onclick="return confirm('Cancel this booking?')">Cancel</button>
+              </form>
+            {% elif b.status == 'completed' and not b.review %}
+              <a href="{{ url_for('reviews.new_review', booking_id=b.id) }}" class="btn btn-outline" style="font-size:0.78rem;padding:0.25rem 0.6rem;">Review</a>
+            {% elif b.review %}
+              <span style="font-size:0.78rem;color:var(--success);">★ Reviewed</span>
+            {% else %}
+              —
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div style="text-align:center;color:var(--muted);padding:4rem 0;">
+    No bookings yet.
+    <br><br>
+    <a href="{{ url_for('users.search') }}" class="btn btn-primary">Find a Player</a>
+  </div>
+{% endif %}
+{% endblock %}

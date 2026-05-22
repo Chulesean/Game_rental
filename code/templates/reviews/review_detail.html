@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Review — PlayerHire{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;margin:0 auto;">
+  <a href="{{ url_for('players.player_detail', player_id=review.booking.player_id) }}" style="color:var(--muted);font-size:0.88rem;text-decoration:none;display:inline-block;margin-bottom:1.5rem;">← Back to player</a>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+      <div>
+        <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;">Review for {{ review.booking.player.user.username }}</h1>
+        <p style="color:var(--muted);font-size:0.85rem;">
+          {{ review.booking.game.title }} • {{ review.created_at.strftime('%B %d, %Y') }}
+        </p>
+      </div>
+      <span style="font-size:1.8rem;color:var(--warning);">{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</span>
+    </div>
+
+    {% if review.comment %}
+      <p style="color:var(--text);line-height:1.65;font-size:1rem;margin-bottom:1rem;">{{ review.comment }}</p>
+    {% endif %}
+
+    <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:0.5rem;">
+      <p style="font-size:0.85rem;color:var(--muted);">
+        Reviewed by <strong>{{ review.reviewer.username }}</strong>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

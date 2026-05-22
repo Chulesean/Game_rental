@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "game-companion"
+version = "0.1.0"
+description = "A platform for renting players to play games with you"
+requires-python = ">=3.12"
+
+dependencies = [
+    "flask>=3.0",
+    "flask-sqlalchemy>=3.1",
+    "flask-login>=0.6",
+    "flask-wtf>=1.2",
+    "psycopg2-binary>=2.9",     # PostgreSQL driver
+    "gunicorn>=21.2",            # Production WSGI server
+    "python-dotenv>=1.0",        # Load .env files
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0",
+    "flake8>=7.0",
+    "isort>=5.13",
+]
+test = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",           # Coverage reports
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+# --- Black (formatter) ---
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+# --- isort (import sorter) ---
+[tool.isort]
+profile = "black"                # Compatible with black formatting
+line_length = 88
+
+# --- pytest ---
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+
+# --- Coverage ---
+[tool.coverage.run]
+source = ["code"]
+omit = ["code/tests/*"]

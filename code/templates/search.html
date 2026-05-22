@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Search — PlayerHire{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>🔍 Search</h1>
+  <p>Find players or games that match your needs.</p>
+</div>
+
+<!-- Search Bar -->
+<div class="card" style="margin-bottom: 2rem;">
+  <form method="GET" action="{{ url_for('users.search') }}">
+    <div style="display: flex; gap: 0.5rem;">
+      <input type="text" 
+             name="q" 
+             placeholder="Search by player name, game title, or skill level..." 
+             value="{{ search_query }}"
+             style="flex: 1; margin: 0;">
+      <button type="submit" class="btn btn-primary">🔍 Search</button>
+      {% if search_query %}
+        <a href="{{ url_for('users.search') }}" class="btn btn-outline">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+{% if search_query %}
+  <!-- SEARCH RESULTS -->
+  <div style="margin-bottom: 2rem;">
+    <h2 style="font-family:'Syne', sans-serif; font-size: 1.2rem; font-weight: 700;">
+      Results for "{{ search_query }}"
+    </h2>
+    <p style="color: var(--muted);">{{ players|length + games|length }} result(s) found</p>
+  </div>
+
+  <!-- PLAYERS RESULTS -->
+  {% if players %}
+    <div style="margin-bottom: 2rem;">
+      <h3 style="margin-bottom: 1rem;">👤 Players ({{ players|length }})</h3>
+      <div class="grid-3">
+        {% for player in players %}
+        <a href="{{ url_for('players.player_detail', player_id=player.id) }}" style="text-decoration: none;">
+          <div class="card" style="height: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+              <div>
+                <div style="font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem;">{{ player.user.username }}</div>
+                <div style="color: var(--muted); font-size: 0.75rem;">Player ID: {{ player.id }}</div>
+              </div>
+              <span class="badge badge-pink">₽{{ "%.2f"|format(player.fee_per_hour) }}/hr</span>
+            </div>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+              <span class="badge badge-purple">{{ player.skill_level|capitalize }}</span>
+              {% if player.is_available %}
+                <span class="badge badge-green">Available</span>
+              {% endif %}
+            </div>
+            {% if player.bio %}
+              <p style="font-size: 0.85rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.75rem;">
+                {{ player.bio[:80] }}{% if player.bio|length > 80 %}…{% endif %}
+              </p>
+            {% endif %}
+            {% if player.games %}
+              <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+                {% for pg in player.games[:3] %}
+                  <span style="font-size: 0.7rem; color: var(--muted); background: var(--surface2); border-radius: 4px; padding: 0.15rem 0.5rem;">{{ pg.game.title }}</span>
+                {% endfor %}
+                {% if player.games|length > 3 %}
+                  <span style="font-size: 0.7rem; color: var(--muted);">+{{ player.games|length - 3 }} more</span>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- GAMES RESULTS -->
+  {% if games %}
+    <div>
+      <h3 style="margin-bottom: 1rem;">🎮 Games ({{ games|length }})</h3>
+      <div class="grid-3">
+        {% for game in games %}
+        <a href="{{ url_for('games.game_detail', game_id=game.id) }}" style="text-decoration: none;">
+          <div class="card" style="height: 100%;">
+            <div>
+              <div style="font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem;">{{ game.title }}</div>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                {% if game.genre %}<span class="badge badge-purple">{{ game.genre }}</span>{% endif %}
+                {% if game.platform %}<span class="badge badge-yellow">{{ game.platform }}</span>{% endif %}
+              </div>
+              <div style="margin-top: 0.75rem; color: var(--muted); font-size: 0.85rem;">
+                {{ game.players|length }} player(s) available
+              </div>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if not players and not games %}
+    <div class="card" style="text-align: center; color: var(--muted); padding: 3rem;">
+      No results found for "{{ search_query }}".
+      <br><br>
+      <a href="{{ url_for('players.listing') }}" class="btn btn-outline">Browse all players</a>
+      <a href="{{ url_for('games.listing') }}" class="btn btn-outline">Browse all games</a>
+    </div>
+  {% endif %}
+
+{% else %}
+  <!-- NO SEARCH - SHOW DEFAULT FEATURED CONTENT -->
+  
+  <!-- Featured Players -->
+  <div style="margin-bottom: 2rem;">
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+      <h2 style="font-family:'Syne', sans-serif; font-size: 1.2rem; font-weight: 700;">🔥 Featured Players</h2>
+      <a href="{{ url_for('players.listing') }}" style="color: var(--accent);">View all →</a>
+    </div>
+    <div class="grid-3">
+      {% for player in featured_players %}
+      <a href="{{ url_for('players.player_detail', player_id=player.id) }}" style="text-decoration: none;">
+        <div class="card" style="height: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div>
+              <div style="font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem;">{{ player.user.username }}</div>
+            </div>
+            <span class="badge badge-pink">₽{{ "%.2f"|format(player.fee_per_hour) }}/hr</span>
+          </div>
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+            <span class="badge badge-purple">{{ player.skill_level|capitalize }}</span>
+            <span class="badge badge-green">Available</span>
+          </div>
+          {% if player.games %}
+            <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+              {% for pg in player.games[:2] %}
+                <span style="font-size: 0.7rem; color: var(--muted); background: var(--surface2); border-radius: 4px; padding: 0.15rem 0.5rem;">{{ pg.game.title }}</span>
+              {% endfor %}
+              {% if player.games|length > 2 %}
+                <span style="font-size: 0.7rem; color: var(--muted);">+{{ player.games|length - 2 }}</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Popular Games -->
+  <div>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+      <h2 style="font-family:'Syne', sans-serif; font-size: 1.2rem; font-weight: 700;">🎮 Popular Games</h2>
+      <a href="{{ url_for('games.listing') }}" style="color: var(--accent);">View all →</a>
+    </div>
+    <div class="grid-3">
+      {% for game in popular_games %}
+      <a href="{{ url_for('games.game_detail', game_id=game.id) }}" style="text-decoration: none;">
+        <div class="card" style="height: 100%;">
+          <div style="font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem;">{{ game.title }}</div>
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem;">
+            {% if game.genre %}<span class="badge badge-purple">{{ game.genre }}</span>{% endif %}
+            {% if game.platform %}<span class="badge badge-yellow">{{ game.platform }}</span>{% endif %}
+          </div>
+          <div style="margin-top: 0.75rem; color: var(--muted); font-size: 0.85rem;">
+            {{ game.players|length }} player(s) available
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

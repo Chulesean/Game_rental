@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}All Players — PlayerHire{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>All Players</h1>
+  <p>{{ players|length }} player{{ 's' if players|length != 1 }} available</p>
+</div>
+
+<!-- Filter Bar -->
+<div class="card" style="margin-bottom: 2rem;">
+  <form method="GET" action="{{ url_for('players.listing') }}">
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end;">
+      <div class="form-group" style="margin: 0; flex: 1; min-width: 160px;">
+        <label>Skill Level</label>
+        <select name="skill">
+          <option value="">All levels</option>
+          {% for level in ['beginner', 'intermediate', 'advanced', 'pro'] %}
+            <option value="{{ level }}" {% if request.args.get('skill') == level %}selected{% endif %}>
+              {{ level|capitalize }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group" style="margin: 0; flex: 1; min-width: 160px;">
+        <label>Game</label>
+        <select name="game_id">
+          <option value="">All games</option>
+          {% for game in all_games %}
+            <option value="{{ game.id }}" {% if request.args.get('game_id')|int == game.id %}selected{% endif %}>
+              {{ game.title }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="align-self: flex-end;">Filter</button>
+      {% if request.args %}
+        <a href="{{ url_for('players.listing') }}" class="btn btn-outline" style="align-self: flex-end;">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- Players Grid -->
+{% if players %}
+  <div class="grid-3">
+    {% for player in players %}
+    <a href="{{ url_for('players.player_detail', player_id=player.id) }}" style="text-decoration: none;">
+      <div class="card" style="height: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+          <div>
+            <div style="font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem;">{{ player.user.username }}</div>
+            <div style="color: var(--muted); font-size: 0.75rem;">Member since {{ player.user.created_at.strftime('%b %Y') }}</div>
+          </div>
+          <span class="badge badge-pink">₽{{ "%.2f"|format(player.fee_per_hour) }}/hr</span>
+        </div>
+        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+          <span class="badge badge-purple">{{ player.skill_level|capitalize }}</span>
+          {% if player.is_available %}
+            <span class="badge badge-green">Available</span>
+          {% endif %}
+        </div>
+        {% if player.bio %}
+          <p style="font-size: 0.85rem; color: var(--muted); line-height: 1.4; margin-bottom: 0.75rem;">
+            {{ player.bio[:80] }}{% if player.bio|length > 80 %}…{% endif %}
+          </p>
+        {% endif %}
+        {% if player.games %}
+          <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+            {% for pg in player.games[:3] %}
+              <span style="font-size: 0.7rem; color: var(--muted); background: var(--surface2); border-radius: 4px; padding: 0.15rem 0.5rem;">{{ pg.game.title }}</span>
+            {% endfor %}
+            {% if player.games|length > 3 %}
+              <span style="font-size: 0.7rem; color: var(--muted);">+{{ player.games|length - 3 }} more</span>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card" style="text-align: center; color: var(--muted); padding: 3rem;">
+    No players match your filters.
+    <br><br>
+    <a href="{{ url_for('players.listing') }}" class="btn btn-outline">Clear filters</a>
+  </div>
+{% endif %}
+{% endblock %}

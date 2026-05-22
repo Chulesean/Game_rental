@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — PlayerHire{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Hey, {{ current_user.username }} 👋</h1>
+  <p>Here's what's going on with your account.</p>
+</div>
+
+<!-- Stats Cards -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem;margin-bottom:2rem;">
+  <div class="card">
+    <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">My Bookings</div>
+    <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--accent);">{{ upcoming_as_client|length }}</div>
+    <div style="font-size:0.75rem;color:var(--muted);">pending/accepted</div>
+  </div>
+  {% if current_user.player_profile %}
+  <div class="card">
+    <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">Requests as Player</div>
+    <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--warning);">{{ pending_as_player|length }}</div>
+    <div style="font-size:0.75rem;color:var(--muted);">awaiting your response</div>
+  </div>
+  <div class="card">
+    <div style="font-size:0.78rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">Accepted Bookings</div>
+    <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--success);">{{ accepted_as_player|length }}</div>
+    <div style="font-size:0.75rem;color:var(--muted);">confirmed sessions</div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- PENDING REQUESTS AS PLAYER (MOST IMPORTANT) -->
+{% if current_user.player_profile and pending_as_player %}
+<div style="margin-bottom:2.5rem;">
+  <h2 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:1rem;color:var(--warning);">⏳ Pending Booking Requests</h2>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table style="width:100%;">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Game</th>
+          <th>Date & Time</th>
+          <th>Duration</th>
+          <th>Fee</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in pending_as_player %}
+        <tr>
+          <td style="font-weight:500;">{{ b.client.username }}</td>
+          <td>{{ b.game.title }}</td>
+          <td style="font-size:0.85rem;">{{ b.start_time.strftime('%b %d, %Y at %H:%M') }}</td>
+          <td>{% set hours = ((b.end_time - b.start_time).total_seconds() / 3600)|round(1) %}{{ hours }}h</td>
+          <td style="font-weight:600;">₽{{ "%.2f"|format(b.total_fee) }}</td>
+          <td>
+            <div style="display:flex;gap:0.5rem;">
+              <form method="POST" action="{{ url_for('bookings.accept_booking', booking_id=b.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-primary" style="font-size:0.75rem;padding:0.3rem 0.8rem;background:var(--success);color:#000;" onclick="return confirm('Accept this booking?')">✅ Accept</button>
+              </form>
+              <form method="POST" action="{{ url_for('bookings.deny_booking', booking_id=b.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-primary" style="font-size:0.75rem;padding:0.3rem 0.8rem;background:var(--danger);" onclick="return confirm('Deny this booking?')">❌ Deny</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- CLIENT: UPCOMING BOOKINGS -->
+<div style="margin-bottom:2.5rem;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;">My Bookings</h2>
+    <a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-outline" style="font-size:0.82rem;padding:0.35rem 0.8rem;">View all</a>
+  </div>
+
+  {% if upcoming_as_client %}
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table style="width:100%;">
+        <thead>
+          <tr>
+            <th>Game</th>
+            <th>Player</th>
+            <th>Date</th>
+            <th>Fee</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in upcoming_as_client %}
+          <tr>
+            <td>{{ b.game.title }}</td>
+            <td>{{ b.player.user.username }}</td>
+            <td style="font-size:0.85rem;">{{ b.start_time.strftime('%b %d, %H:%M') }}</td>
+            <td>₽{{ "%.2f"|format(b.total_fee) }}</td>
+            <td>
+              {% if b.status == 'accepted' %}
+                <span class="badge badge-green">✅ Accepted</span>
+              {% elif b.status == 'pending' %}
+                <span class="badge badge-yellow">⏳ Pending (waiting for player)</span>
+              {% elif b.status == 'denied' %}
+                <span class="badge badge-red">❌ Denied</span>
+              {% elif b.status == 'cancelled' %}
+                <span class="badge badge-red">Cancelled</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if b.status == 'pending' %}
+                <form method="POST" action="{{ url_for('bookings.cancel', booking_id=b.id) }}" style="display:inline;">
+                  <button type="submit" class="btn btn-outline" style="font-size:0.7rem;padding:0.2rem 0.5rem;color:var(--danger);border-color:var(--danger);" onclick="return confirm('Cancel this booking?')">Cancel</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="card" style="text-align:center;color:var(--muted);padding:2.5rem;">
+      No upcoming bookings yet.
+      <br><br>
+      <a href="{{ url_for('users.search') }}" class="btn btn-primary">Find a Player</a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- PLAYER: ACCEPTED BOOKINGS -->
+{% if current_user.player_profile and accepted_as_player %}
+<div style="margin-bottom:2.5rem;">
+  <h2 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:1rem;">📅 My Accepted Bookings</h2>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table style="width:100%;">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Game</th>
+          <th>Date & Time</th>
+          <th>Fee</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in accepted_as_player %}
+        <tr>
+          <td>{{ b.client.username }}</td>
+          <td>{{ b.game.title }}</td>
+          <td style="font-size:0.85rem;">{{ b.start_time.strftime('%b %d, %Y at %H:%M') }}</td>
+          <td>₽{{ "%.2f"|format(b.total_fee) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div>
+  <h2 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:1rem;">Quick Actions</h2>
+  <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+    <a href="{{ url_for('users.search') }}" class="btn btn-primary">🔍 Find Players</a>
+    <a href="{{ url_for('users.profile') }}" class="btn btn-outline">Edit Profile</a>
+    {% if not current_user.player_profile %}
+      <a href="{{ url_for('players.become_player') }}" class="btn btn-outline">Become a Player</a>
+    {% else %}
+      <a href="{{ url_for('players.edit_profile') }}" class="btn btn-outline">Edit Player Profile</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

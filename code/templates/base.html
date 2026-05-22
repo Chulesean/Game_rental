@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}PlayerHire{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --surface2: #1c1c27;
+      --border: #2a2a3a;
+      --accent: #7c6dfa;
+      --accent-glow: rgba(124, 109, 250, 0.25);
+      --accent2: #fa6d8f;
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --success: #4ade80;
+      --warning: #facc15;
+      --danger: #f87171;
+      --info: #60a5fa;
+      --radius: 10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); background: var(--surface2); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: #9080fc;
+      box-shadow: 0 0 28px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* ── Flash messages ── */
+    .flashes {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem 2rem 0;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .flash {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      border-left: 3px solid;
+      animation: slideIn 0.25s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .flash.success { background: rgba(74,222,128,0.1); border-color: var(--success); color: var(--success); }
+    .flash.danger  { background: rgba(248,113,113,0.1); border-color: var(--danger);  color: var(--danger); }
+    .flash.warning { background: rgba(250,204,21,0.1);  border-color: var(--warning); color: var(--warning); }
+    .flash.info    { background: rgba(96,165,250,0.1);  border-color: var(--info);    color: var(--info); }
+
+    /* ── Main layout ── */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+
+    /* ── Forms ── */
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.2rem; }
+
+    label { font-size: 0.85rem; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    input, select, textarea {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 0.65rem 0.9rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    textarea { resize: vertical; min-height: 100px; }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-purple { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent); }
+    .badge-pink   { background: rgba(250,109,143,0.15); color: var(--accent2); border: 1px solid var(--accent2); }
+    .badge-green  { background: rgba(74,222,128,0.1); color: var(--success); border: 1px solid var(--success); }
+    .badge-yellow { background: rgba(250,204,21,0.1); color: var(--warning); border: 1px solid var(--warning); }
+    .badge-red    { background: rgba(248,113,113,0.1); color: var(--danger); border: 1px solid var(--danger); }
+
+    /* ── Page title ── */
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; }
+    .page-header p  { color: var(--muted); margin-top: 0.4rem; }
+
+    /* ── Grid ── */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.25rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1.25rem; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 0.6rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <nav>
+    <a href="{{ url_for('users.index') }}" class="nav-logo">Player<span>Hire</span></a>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('users.search') }}">🔍 Search</a></li>
+      {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('users.dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('users.profile') }}">Profile</a></li>
+        <li><a href="{{ url_for('auth.logout') }}" class="btn btn-outline" style="margin-left:0.5rem">Log out</a></li>
+      {% else %}
+        <li><a href="{{ url_for('auth.login') }}">Log in</a></li>
+        <li><a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="margin-left:0.5rem">Sign up</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flashes">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    &copy; {{ 2026 }} PlayerHire — Find your perfect gaming partner.
+  </footer>
+
+</body>
+</html>

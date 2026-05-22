@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ game.title }} — PlayerHire{% endblock %}
+
+{% block content %}
+<div style="max-width:800px;margin:0 auto;">
+  <a href="{{ url_for('games.listing') }}" style="color:var(--muted);font-size:0.88rem;text-decoration:none;display:inline-block;margin-bottom:1.5rem;">← Back to games</a>
+
+  <div class="card" style="margin-bottom:2rem;">
+    <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.75rem;">{{ game.title }}</h1>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      {% if game.genre %}<span class="badge badge-purple">{{ game.genre }}</span>{% endif %}
+      {% if game.platform %}<span class="badge badge-yellow">{{ game.platform }}</span>{% endif %}
+    </div>
+  </div>
+
+  <h2 style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:1rem;">
+    Available Players ({{ players|length }})
+  </h2>
+
+  {% if players %}
+    <div class="grid-2">
+      {% for player in players %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;">{{ player.user.username }}</div>
+          </div>
+          <span class="badge badge-pink">€{{ "%.2f"|format(player.fee_per_hour) }}/hr</span>
+        </div>
+        <div style="display:flex;gap:0.4rem;margin-bottom:0.85rem;">
+          <span class="badge badge-purple">{{ player.skill_level }}</span>
+        </div>
+        <div style="display:flex;gap:0.5rem;">
+          <a href="{{ url_for('players.player_detail', player_id=player.id) }}" class="btn btn-outline" style="font-size:0.82rem;padding:0.35rem 0.75rem;">View Profile</a>
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('bookings.create', player_id=player.id) }}" class="btn btn-primary" style="font-size:0.82rem;padding:0.35rem 0.75rem;">Book</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card" style="text-align:center;color:var(--muted);padding:2rem;">
+      No players available for this game right now.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
