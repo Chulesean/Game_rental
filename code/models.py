@@ -1,8 +1,7 @@
 from datetime import datetime
 
-from flask_login import UserMixin
-
 from extensions import db
+from flask_login import UserMixin
 
 
 # ---------------------------------------------------------------------------
@@ -50,7 +49,7 @@ class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     bio = db.Column(db.Text)
-    fee_per_hour = db.Column(db.Float, nullable=False)             # e.g. 5.00 €/hr
+    fee_per_hour = db.Column(db.Float, nullable=False)  # e.g. 5.00 €/hr
     skill_level = db.Column(
         db.Enum("beginner", "intermediate", "advanced", "pro", name="skill_levels"),
         nullable=False,
@@ -79,8 +78,8 @@ class Game(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), unique=True, nullable=False)
-    genre = db.Column(db.String(64))                               # e.g. FPS, RPG
-    platform = db.Column(db.String(64))                            # e.g. PC, PS5
+    genre = db.Column(db.String(64))  # e.g. FPS, RPG
+    platform = db.Column(db.String(64))  # e.g. PC, PS5
 
     # Relationships
     players = db.relationship("PlayerGame", back_populates="game")
@@ -101,7 +100,7 @@ class PlayerGame(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column(db.Integer, db.ForeignKey("players.id"), nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
-    skill_level = db.Column(                                       # Per-game skill
+    skill_level = db.Column(  # Per-game skill
         db.Enum("beginner", "intermediate", "advanced", "pro", name="skill_levels"),
         nullable=False,
         default="intermediate",
@@ -135,7 +134,12 @@ class Booking(db.Model):
     total_fee = db.Column(db.Float, nullable=False)
     status = db.Column(
         db.Enum(
-            "pending", "accepted", "completed", "cancelled", "denied", name="booking_statuses"
+            "pending",
+            "accepted",
+            "completed",
+            "cancelled",
+            "denied",
+            name="booking_statuses",
         ),
         default="pending",
         nullable=False,
@@ -172,7 +176,7 @@ class Review(db.Model):
         db.Integer, db.ForeignKey("bookings.id"), unique=True, nullable=False
     )
     reviewer_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)                 # 1–5
+    rating = db.Column(db.Integer, nullable=False)  # 1–5
     comment = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -184,4 +188,3 @@ class Review(db.Model):
 
     def __repr__(self):
         return f"<Review booking={self.booking_id} rating={self.rating}>"
-    

@@ -18,4 +18,3 @@ def test_get_game_by_id_returns_game_data(client, sample_game):
     data = json.loads(response.data)
     assert data["id"] == sample_game.id
     assert data["title"] == sample_game.title
-    

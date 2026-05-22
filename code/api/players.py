@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-
 from models import Player, PlayerGame
 
 api_players_bp = Blueprint("api_players", __name__)

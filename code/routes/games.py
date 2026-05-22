@@ -1,7 +1,6 @@
+from extensions import db
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
-
-from extensions import db
 from models import Game
 
 games_bp = Blueprint("games", __name__)
@@ -40,9 +39,7 @@ def game_detail(game_id):
     """Detail page: game info + list of available players for this game."""
     game = Game.query.get_or_404(game_id)
     # Players who offer this game and are available
-    available_players = [
-        pg.player for pg in game.players if pg.player.is_available
-    ]
+    available_players = [pg.player for pg in game.players if pg.player.is_available]
     return render_template(
         "games/game_detail.html", game=game, players=available_players
     )

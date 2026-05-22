@@ -1,7 +1,6 @@
+from extensions import db
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-
-from extensions import db
 from models import Booking, Review
 
 reviews_bp = Blueprint("reviews", __name__)
@@ -60,8 +59,7 @@ def review_detail(review_id):
 def player_reviews(player_id):
     """All reviews for a given player."""
     reviews = (
-        Review.query
-        .join(Booking)
+        Review.query.join(Booking)
         .filter(Booking.player_id == player_id)
         .order_by(Review.created_at.desc())
         .all()

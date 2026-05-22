@@ -18,4 +18,3 @@ def test_get_user_by_id_returns_correct_data(client, sample_user):
     data = json.loads(response.data)
     assert data["id"] == sample_user.id
     assert data["username"] == sample_user.username
-    

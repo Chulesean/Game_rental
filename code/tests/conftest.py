@@ -1,8 +1,9 @@
 """Shared fixtures for tests."""
+
 import pytest
-from flask_app import create_app
 from extensions import db
-from models import User, Player, Game, Booking
+from flask_app import create_app
+from models import Game, User
 from werkzeug.security import generate_password_hash
 
 
@@ -10,7 +11,7 @@ from werkzeug.security import generate_password_hash
 def app():
     """Create Flask app for testing."""
     app = create_app("testing")
-    
+
     with app.app_context():
         db.create_all()
         yield app
@@ -36,7 +37,7 @@ def sample_user(db_session):
     user = User(
         username="testuser",
         email="test@example.com",
-        password_hash=generate_password_hash("password123")
+        password_hash=generate_password_hash("password123"),
     )
     db_session.session.add(user)
     db_session.session.commit()
@@ -46,11 +47,7 @@ def sample_user(db_session):
 @pytest.fixture
 def sample_game(db_session):
     """Create a sample game."""
-    game = Game(
-        title="Test Game",
-        genre="RPG",
-        platform="PC"
-    )
+    game = Game(title="Test Game", genre="RPG", platform="PC")
     db_session.session.add(game)
     db_session.session.commit()
     return game

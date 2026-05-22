@@ -1,9 +1,8 @@
 from datetime import datetime
 
+from extensions import db
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-
-from extensions import db
 from models import Booking, Player
 
 bookings_bp = Blueprint("bookings", __name__)
@@ -32,7 +31,6 @@ def create():
     if current_user.player_profile and current_user.player_profile.id == player.id:
         flash("You cannot book yourself! Please choose a different player.", "danger")
         return redirect(url_for("players.player_detail", player_id=player.id))
-
 
     if request.method == "POST":
         game_id = request.form.get("game_id")
@@ -128,7 +126,10 @@ def accept_booking(booking_id):
     booking.status = "accepted"
     db.session.commit()
 
-    flash(f"Booking #{booking.id} has been ACCEPTED! The client has been notified.", "success")
+    flash(
+        f"Booking #{booking.id} has been ACCEPTED! The client has been notified.",
+        "success",
+    )
     return redirect(url_for("users.dashboard"))
 
 
@@ -155,5 +156,7 @@ def deny_booking(booking_id):
     booking.status = "denied"
     db.session.commit()
 
-    flash(f"Booking #{booking.id} has been DENIED. The client has been notified.", "info")
+    flash(
+        f"Booking #{booking.id} has been DENIED. The client has been notified.", "info"
+    )
     return redirect(url_for("users.dashboard"))

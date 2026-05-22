@@ -1,7 +1,6 @@
+from extensions import db
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-
-from extensions import db
 from models import Game, Player, PlayerGame
 
 players_bp = Blueprint("players", __name__)
@@ -10,8 +9,8 @@ players_bp = Blueprint("players", __name__)
 @players_bp.route("/players")
 def listing():
     """Browse all available players, with optional filters."""
-    skill = request.args.get("skill")       # e.g. ?skill=advanced
-    game_id = request.args.get("game_id")   # e.g. ?game_id=3
+    skill = request.args.get("skill")  # e.g. ?skill=advanced
+    game_id = request.args.get("game_id")  # e.g. ?game_id=3
 
     query = Player.query.filter_by(is_available=True)
 
@@ -22,7 +21,7 @@ def listing():
         query = query.join(PlayerGame).filter(PlayerGame.game_id == game_id)
 
     players = query.order_by(Player.fee_per_hour).all()
-    games = Game.query.order_by(Game.title).all()   # for the filter dropdown
+    games = Game.query.order_by(Game.title).all()  # for the filter dropdown
 
     return render_template("players/listing.html", players=players, games=games)
 
@@ -46,7 +45,7 @@ def become_player():
         bio = request.form.get("bio", "").strip()
         fee = request.form.get("fee_per_hour", 0)
         skill = request.form.get("skill_level", "intermediate")
-        game_ids = request.form.getlist("game_ids")   # multi-select
+        game_ids = request.form.getlist("game_ids")  # multi-select
 
         player = Player(
             user_id=current_user.id,
@@ -81,7 +80,9 @@ def edit_profile():
 
     if request.method == "POST":
         player.bio = request.form.get("bio", "").strip()
-        player.fee_per_hour = float(request.form.get("fee_per_hour", player.fee_per_hour))
+        player.fee_per_hour = float(
+            request.form.get("fee_per_hour", player.fee_per_hour)
+        )
         player.skill_level = request.form.get("skill_level", player.skill_level)
         player.is_available = "is_available" in request.form
 

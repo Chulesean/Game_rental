@@ -1,11 +1,10 @@
+from datetime import datetime
+
+from extensions import db
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from werkzeug.security import generate_password_hash
-
-from datetime import datetime
-from models import User, Player, Booking
-from extensions import db
 from models import Booking, Player, User
+from werkzeug.security import generate_password_hash
 
 users_bp = Blueprint("users", __name__)
 
@@ -20,7 +19,7 @@ def index():
 @login_required
 def dashboard():
     """Shows the user's upcoming bookings and quick stats."""
-    
+
     # Client's bookings (as customer)
     upcoming_as_client = (
         Booking.query.filter_by(client_id=current_user.id)
@@ -35,7 +34,7 @@ def dashboard():
         .limit(5)
         .all()
     )
-    
+
     # Player's pending bookings (as service provider)
     pending_as_player = []
     if current_user.player_profile:
@@ -45,7 +44,7 @@ def dashboard():
             .order_by(Booking.start_time)
             .all()
         )
-    
+
     # Player's accepted bookings
     accepted_as_player = []
     if current_user.player_profile:
@@ -55,15 +54,15 @@ def dashboard():
             .order_by(Booking.start_time)
             .all()
         )
-    
+
     # Auto-complete past accepted bookings
     if current_user.player_profile:
         past_accepted = Booking.query.filter(
             Booking.player_id == current_user.player_profile.id,
             Booking.status == "accepted",
-            Booking.end_time < datetime.utcnow()
+            Booking.end_time < datetime.utcnow(),
         ).all()
-        
+
         for booking in past_accepted:
             booking.status = "completed"
         db.session.commit()
@@ -73,7 +72,7 @@ def dashboard():
         upcoming_as_client=upcoming_as_client,
         past_as_client=past_as_client,
         pending_as_player=pending_as_player,
-        accepted_as_player=accepted_as_player
+        accepted_as_player=accepted_as_player,
     )
 
 
@@ -125,32 +124,34 @@ def public_profile(user_id):
 @users_bp.route("/search")
 def search():
     """Search for players and games."""
-    from models import Player, Game
+    from models import Game, Player
+
     query = request.args.get("q", "").strip()
-    
+
     if query:
         # Tìm kiếm player theo username
-        players = Player.query.join(User).filter(
-            User.username.ilike(f"%{query}%")
-        ).filter(Player.is_available == True).all()
-        
+        players = (
+            Player.query.join(User)
+            .filter(User.username.ilike(f"%{query}%"))
+            .filter(Player.is_available)
+            .all()
+        )
+
         # Tìm kiếm game theo title
-        games = Game.query.filter(
-            Game.title.ilike(f"%{query}%")
-        ).all()
+        games = Game.query.filter(Game.title.ilike(f"%{query}%")).all()
     else:
         players = []
         games = []
-    
+
     # Lấy dữ liệu cho trang chủ (featured và popular)
     featured_players = Player.query.filter_by(is_available=True).limit(6).all()
     popular_games = Game.query.limit(6).all()
-    
+
     return render_template(
         "search.html",
         search_query=query,
         players=players,
         games=games,
         featured_players=featured_players,
-        popular_games=popular_games
+        popular_games=popular_games,
     )

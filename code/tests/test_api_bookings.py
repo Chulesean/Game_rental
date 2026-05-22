@@ -1,7 +1,5 @@
 """Simple tests for Bookings API."""
 
-import json
-
 
 def test_get_bookings_requires_login(client):
     """GET /api/bookings should require authentication."""
@@ -14,4 +12,3 @@ def test_api_root_returns_200(client):
     """API root should be accessible."""
     response = client.get("/api/users")
     assert response.status_code == 200
-    

@@ -13,9 +13,7 @@ class DevelopmentConfig(Config):
     """Local development — SQLite for simplicity, debug on."""
 
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        "DATABASE_URL", "sqlite:///dev.db"
-    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL", "sqlite:///dev.db")
 
 
 class TestingConfig(Config):
@@ -23,7 +21,7 @@ class TestingConfig(Config):
 
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    WTF_CSRF_ENABLED = False     # Allows test client to POST without tokens
+    WTF_CSRF_ENABLED = False  # Allows test client to POST without tokens
 
 
 class ProductionConfig(Config):

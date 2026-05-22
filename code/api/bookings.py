@@ -1,9 +1,8 @@
 from datetime import datetime
 
+from extensions import db
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
-
-from extensions import db
 from models import Booking, Player
 
 api_bookings_bp = Blueprint("api_bookings", __name__)

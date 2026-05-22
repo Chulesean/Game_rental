@@ -1,7 +1,6 @@
+from extensions import db
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
-
-from extensions import db
 from models import Booking, Review
 
 api_reviews_bp = Blueprint("api_reviews", __name__)
@@ -33,8 +32,7 @@ def get_review(review_id):
 def get_player_reviews(player_id):
     """GET /api/players/<id>/reviews — all reviews for a player."""
     reviews = (
-        Review.query
-        .join(Booking)
+        Review.query.join(Booking)
         .filter(Booking.player_id == player_id)
         .order_by(Review.created_at.desc())
         .all()
@@ -42,12 +40,14 @@ def get_player_reviews(player_id):
     avg_rating = (
         round(sum(r.rating for r in reviews) / len(reviews), 2) if reviews else None
     )
-    return jsonify({
-        "player_id": player_id,
-        "review_count": len(reviews),
-        "average_rating": avg_rating,
-        "reviews": [_review_dict(r) for r in reviews],
-    })
+    return jsonify(
+        {
+            "player_id": player_id,
+            "review_count": len(reviews),
+            "average_rating": avg_rating,
+            "reviews": [_review_dict(r) for r in reviews],
+        }
+    )
 
 
 @api_reviews_bp.route("/reviews", methods=["POST"])

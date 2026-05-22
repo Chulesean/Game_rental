@@ -1,9 +1,8 @@
 import os
 
-from flask import Flask
-
 from config import config_map
 from extensions import db, login_manager
+from flask import Flask
 
 # Extensions declared here so models.py can import them without circular imports
 
@@ -58,16 +57,17 @@ def create_app(config_name: str = None) -> Flask:
 @login_manager.user_loader
 def load_user(user_id: int):
     from models import User
+
     return User.query.get(int(user_id))
 
 
 # --- Entry point for local development ---
 if __name__ == "__main__":
     app = create_app("development")
-    
+
     # Tạo database tables trong app context
     with app.app_context():
         db.create_all()
         print("✅ Database tables created/verified!")
-    
+
     app.run(debug=True)
